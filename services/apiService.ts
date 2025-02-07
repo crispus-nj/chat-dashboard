@@ -15,7 +15,7 @@ const apiClient: AxiosInstance = axios.create({
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const authStore = useAuthStore();
-    const token = authStore.user.access_token;
+    const token = authStore.getToken();
     if (token && config.url !== '/auth/login') {
       config.headers.Authorization = `Bearer ${token}`;
     }
