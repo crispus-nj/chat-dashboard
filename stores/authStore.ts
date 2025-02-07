@@ -1,3 +1,4 @@
+import type { IAuthResponse } from "~/lib/types/auth.interface";
 import { signin } from "~/services/authService";
 
 export const useAuthStore = defineStore("auth", {
@@ -6,6 +7,7 @@ export const useAuthStore = defineStore("auth", {
     user: {} as any,
     loading: false,
     error: null as string | null,
+    token: null as string | null,
   }),
   actions: {
     async signin(email: string, password: string) {
@@ -14,14 +16,25 @@ export const useAuthStore = defineStore("auth", {
       try {
         let authResponseData = await signin(email, password);
         this.user = authResponseData.user;
-        localStorage.setItem("auth", JSON.stringify(authResponseData));
+        if (import.meta.client) {
+          localStorage.setItem("auth", JSON.stringify(authResponseData));
+        }
         this.authenticated = true;
       } catch (error: any) {
         this.error = error;
       }
     },
+    getToken() {
+        if (import.meta.client) {
+          let auth:IAuthResponse = JSON.parse(localStorage?.getItem("auth")!)!;
+          this.token = auth?.access_token
+        }
+        return this.token;
+      },
     signout() {
-      localStorage.clear();
+      if (import.meta.client) {
+        localStorage.clear();
+      }
     },
   },
 });
